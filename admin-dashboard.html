@@ -54,7 +54,7 @@
         <div id="tab-software" class="hidden">
             <div class="header">
                 <h1>软件管理</h1>
-                <button class="btn" onclick="alert('添加软件功能开发中，下一步更新 Worker 后端后即可使用')">添加软件</button>
+                <button class="btn" onclick="addSoftware()">添加软件</button>
             </div>
             <div class="card">
                 <table>
@@ -134,7 +134,38 @@
             localStorage.removeItem('soft_home_admin_token');
             window.location.href = 'admin.html';
         }
+        function addSoftware() {
+            const name = prompt("请输入软件名称（例如：LearnEnglish）");
+            if (!name) return;
+            const slug = prompt("请输入唯一标识（例如：learnenglish，小写英文）");
+            if (!slug) return;
+            const version = prompt("请输入版本号（例如：1.0）");
+            if (!version) return;
+            const github_repo = prompt("请输入 GitHub 仓库名（例如：lxtgwywq/soft-home-apk）");
+            if (!github_repo) return;
+            const asset_name = prompt("请输入 APK 文件名（必须与 GitHub Releases 里的文件名完全一致，区分大小写！例如：LearnEnglish.apk）");
+            if (!asset_name) return;
+            const short_desc = prompt("请输入软件简介");
 
+            fetch(`${API_BASE}/api/admin/software`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${adminToken}`
+                },
+                body: JSON.stringify({ name, slug, version, github_repo, asset_name, short_desc })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    alert('添加成功！');
+                    loadSoftware(); // 刷新列表
+                } else {
+                    alert('添加失败：' + data.message);
+                }
+            })
+            .catch(e => alert('网络错误：' + e.message));
+        }
         loadCodes();
     </script>
 </body>
